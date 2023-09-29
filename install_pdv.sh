@@ -9,7 +9,7 @@
     vpn='http://192.168.0.29/sitef/gsclient_ubuntu_x64.zip'
     brother=''
     ricoh=''
-    teamviewer='https://download.teamviewer.com/download/linux/teamviewer_amd64.deb?utm_source=google&utm_medium=cpc&utm_campaign=br%7Cb%7Cpr%7C22%7Coct%7Ctv-core-download-sn%7Cnew%7Ct0%7C0&utm_content=Operating-Systems&utm_term=teamviewer%20para%20linux&gclid=CjwKCAjw8-OhBhB5EiwADyoY1WCvxJzrjA0-BNqX0T587a5ILPoyIrKtaE-7HXi9IoFglfptdtQDcxoCYNYQAvD_BwE'
+    teamviewer='http://192.168.0.29/instaladores/teamviewer_15.41.7_amd64.deb'
     asinstall='http://192.168.0.29/autosystem/as_install.sh.gz'
     jposto='http://192.168.0.29/jposto.zip'
     autosystem='http://192.168.0.29/autosystem/autosystem3_33193.zip'
@@ -35,6 +35,25 @@ network:
      search:
       - buffon.com.br
  version: 2" > /etc/netplan/00-installer-config.yaml
+    }
+
+    function confNetplanDHCP(){
+echo "# This is the network config written by 'subiquity'
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+          eth0:
+                  dhcp4: yes"
+    }
+
+    function saveMac(){
+        echo "POSTO:$posto PDV:$pdv" >> /var/tmp/mac_maquinas_novas.txt
+        ip link show | grep -o 'link/ether .*' | awk '{print $2}' >> /var/tmp/mac_maquinas_novas.txt
+        echo "---" >> /var/tmp/mac_maquinas_novas.txt
+        echo " " >> /var/tmp/mac_maquinas_novas.txt
+
+        sshpass -p '#cb%aaa29@;' scp -P 22 /var/tmp/mac_maquinas_novas.txt root@192.168.0.29:/var/www/html/
     }
 
     #sshd
@@ -307,13 +326,26 @@ while true; do
 
         #Ajuste de netplan 
         echo "configurando netplan"
-        sleep 2
+        sleep 1
+        echo "O posto está rodando na blockbit?"
+        echo "1. Sim"
+        echo "2. Não"
+        read BlockOption
+
+        if [ "BlockOption" eq 1]; then
+            confNetplanDHCP
+            saveMac
+            clear
+            echo "netplan configurado"
+        else
             confNetplan
-                clear
-        echo "netplan configurado"
-        echo " "
-        sleep 2
-                clear
+            clear
+            echo "netplan configurado"
+            echo " "
+            sleep 2
+        fi
+
+        clear
 
         #Ajuste de ssh 
         echo "configurando ssh"
