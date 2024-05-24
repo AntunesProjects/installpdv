@@ -7,8 +7,7 @@
 
 ## url para wget:
     vpn='http://192.168.0.29/sitef/gsclient_ubuntu_x64.zip'
-    brother=''
-    ricoh=''
+    crowdstrike='http://192.168.0.29/crowdstrike/falcon.deb'
     teamviewer='http://192.168.0.29/instaladores/teamviewer_15.41.7_amd64.deb'
     asinstall='http://192.168.0.29/autosystem/as_install.sh.gz'
     jposto='http://192.168.0.29/jposto.zip'
@@ -269,6 +268,15 @@ UNIDADE=$posto
 USUARIO=0x70y0x6fy0x73y0x74y0x67y0x72y0x65y0x73y" > /opt/jposto/bin/com/resources/conf.properties
     }
 
+    #CrowdStrike
+    function instCS(){
+        dpkg -i falcon.deb
+        apt -f install
+        dpkg -i falcon.deb
+        /opt/CrowdStrike/falconctl -s --cid=50762BB86F2D489C9DF249F2309CE057-0A
+        systemctl restart falcon-sensor.service
+    }
+
 #inicio do script
 while true; do
     echo "Digite o posto"
@@ -372,6 +380,16 @@ while true; do
         echo "VPN finalizada"
         sleep 2
         clear
+
+        #CrowdStrike
+        echo "Instalanado CrowdStrike"
+        sleep 2
+            instCS
+        echo " "
+        echo "CrowdStrike Instalado"
+        sleep 2
+        clear
+        
 
             #Atualizando sistemas
             while true; do
